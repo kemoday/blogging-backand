@@ -17,11 +17,9 @@ const validateSinggingupData = (req, res, next) => {
   } else {
     next();
   }
-  console.log("validate data");
 };
 
 const isLoggedIn = (req, res, next) => {
-  console.log("its not loged in");
   if (req.cookies.token) {
     try {
       jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -51,7 +49,6 @@ const validateSingginData = (req, res, next) => {
 router
   .route("/signup")
   .post(isLoggedIn, validateSinggingupData, async (req, res) => {
-    console.log("its time to sign up");
     const hashed_password = await bcrypt.hash(req.body.password, 10);
     const hashed_body = { ...req.body, password: hashed_password, posts: [] };
 
@@ -126,16 +123,19 @@ router.route("/signin").post(validateSingginData, async (req, res) => {
   }
 });
 
-router.route("/info").post(async (req, res) => {
+router.route("/info").get(async (req, res) => {
+  console.log("geting user data");
   if (req.cookies.token) {
+    console.log("token found");
     try {
       const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-      const user = await Users.findOne({ email: decoded.email })
-        .populate({
-          path: "polls",
-          model: "Polls",
-        })
-        .exec();
+      console.log("vailde token");
+      const user = await Users.findOne({ email: decoded.email }).exec();
+      // .populate({
+      //   path: "posts",
+      //   model: "Posts",
+      // })
+
       res.send(user);
     } catch (error) {
       console.log(error);

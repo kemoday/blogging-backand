@@ -20,6 +20,10 @@ app.use(
 
 app.use("/user/account/", require("./routes/users.route"));
 
+// require("./models/users.module").remove({}, function (err) {
+//   console.log("collection removed");
+// });
+
 const url = process.env.MONGODB_URL;
 
 mongoose
