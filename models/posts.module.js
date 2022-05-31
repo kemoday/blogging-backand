@@ -14,31 +14,16 @@ const Postschema = new Schema(
       required: true,
       trim: true,
     },
-    body: {
+    content: {
       type: String,
       required: true,
       trim: true,
     },
-    thumbnail: {
+    summary: {
       type: String,
       required: true,
       trim: true,
     },
-    comments: [
-      {
-        text: {
-          type: String,
-          trim: true,
-          required: true,
-        },
-        votes: {
-          type: Number,
-          required: true,
-          trim: true,
-          default: 0,
-        },
-      },
-    ],
     views: {
       trim: true,
       type: Number,

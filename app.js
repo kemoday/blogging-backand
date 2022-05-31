@@ -16,9 +16,8 @@ app.use(
   })
 );
 
-//defining other routes
-
 app.use("/user/account/", require("./routes/users.route"));
+app.use("/user/posts/", require("./routes/posts.route"));
 
 // require("./models/users.module").remove({}, function (err) {
 //   console.log("collection removed");

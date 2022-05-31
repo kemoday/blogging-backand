@@ -27,7 +27,10 @@ const isLoggedIn = (req, res, next) => {
         .status(401)
         .send({ error: true, message: "you are already logged in." });
     } catch (error) {
-      res.status(404).send({ error: true, message: "invaild token" });
+      res
+        .status(404)
+        .clearCookie("token")
+        .send({ error: true, message: "invaild token" });
     }
   } else next();
 };
@@ -124,30 +127,33 @@ router.route("/signin").post(validateSingginData, async (req, res) => {
 });
 
 router.route("/info").get(async (req, res) => {
-  console.log("geting user data");
-  if (req.cookies.token) {
-    console.log("token found");
-    try {
-      const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-      console.log("vailde token");
-      const user = await Users.findOne({ email: decoded.email }).exec();
-      // .populate({
-      //   path: "posts",
-      //   model: "Posts",
-      // })
-
-      res.send(user);
-    } catch (error) {
-      console.log(error);
-      res
-        .status(500)
-        .send({ error: true, message: "error while getting user data." });
-    }
-  } else res.send("you are not sigen in.");
+  if (req.cookies.token)
+    jwt.verify(
+      req.cookies.token,
+      process.env.JWT_SECRET,
+      function (err, decoded) {
+        if (err) {
+          return res
+            .status(401)
+            .clearCookie("token")
+            .send({ error: true, message: "jwt token expired." });
+        } else {
+          Users.findOne({ email: decoded.email }, (err, user) => {
+            if (err) {
+              res.status(500).send(err);
+            } else {
+              delete user._doc.posts;
+              res.send(user);
+            }
+          });
+        }
+      }
+    );
+  else res.send("you are not sigen in.");
 });
 
-router.route("/signout").put((req, res) => {
-  res.clearCookie("token").send("log out successfully!");
+router.route("/signout").get((req, res) => {
+  res.status(200).clearCookie("token").send();
 });
 
 module.exports = router;
