@@ -82,9 +82,9 @@ router.route("/").get(async (req, res) => {
   }
 });
 
-router.route("/:id").get(async (req, res) => {
+router.route("/edit/:id").get(async (req, res) => {
   try {
-    const post = await Posts.find({ _id: req.params.id });
+    const post = await Posts.findOne({ _id: req.params.id });
     res.send(post);
   } catch (error) {
     console.log(error);
@@ -94,106 +94,46 @@ router.route("/:id").get(async (req, res) => {
   }
 });
 
-/*
-// R : /poll        -> get
-
-router.route("/user/:userId").post(isLoggedIn, (req, res) => {
-  const userId = req.params.userId;
-  if (!userId) {
-    return res.status(401).json({
-      error: true,
-      message: "User id is required.",
-    });
+router.route("/:id").get(async (req, res) => {
+  try {
+    const post = await Posts.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $inc: { views: 1 },
+      },
+      { new: true, upsert: true }
+    );
+    res.send(post);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(501)
+      .send({ error: true, message: "error while adding new post" });
   }
-
-  Polls.find({ userId }, function (err, polls) {
-    if (err) {
-      console.log(err);
-    }
-    if (polls) {
-      res.send(polls);
-    } else {
-      res.json([]);
-    }
-  });
 });
 
-// R : /poll/:id    -> get
-
-router.route("/:id").get((req, res) => {
-  const id = req.params.id;
-  if (!id) {
-    return res.status(401).json({
-      error: true,
-      message: "Poll id is is required to get it!.",
-    });
+router.route("/:id").delete(async (req, res) => {
+  try {
+    const post = await Posts.findOneAndRemove({ _id: req.params.id });
+    res.send(post);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(501)
+      .send({ error: true, message: "error while adding new post" });
   }
-
-  Polls.findOneAndUpdate(
-    { _id: id },
-    {
-      $inc: { views: 1 },
-    },
-    { new: true, upsert: true },
-    function (err, poll) {
-      if (err) {
-        console.log(err);
-      }
-      if (poll) {
-        res.send(poll);
-      } else {
-        res.status(404).json({ message: "poll not found", error: true });
-      }
-    }
-  );
 });
 
-// U : /poll/:id    -> put
-
-// no update for you!
-
-router.route("/vote/:pollId").put((req, res) => {
-  const pollId = req.params.pollId;
-  Polls.findByIdAndUpdate(pollId, { options: req.body }, function (err, poll) {
-    if (err) {
-      console.log(err);
-      res.status(404).send();
-    } else {
-      res.send(poll);
-    }
-  });
-});
-
-router.route("/vote/:id").post((req, res) => {
-  const { optionid, pollid } = req.body;
-
-  Polls.findById({ _id: pollid }, function (err, poll) {
-    poll.options.map((op, idx) => {
-      if (op._id == optionid) {
-        poll.options[idx].votes = poll.options[idx].votes + 1;
-        poll.save();
-      }
-    });
-
-    res.send(poll.options);
-  });
-});
-
-// D : /poll/:id    -> delete
-
-router.route("/:id").delete((req, res) => {
-  const id = req.params.id;
-  if (!id) {
-    return res.status(400).json({
-      error: true,
-      message: "Poll id is is required to get it!.",
-    });
+router.route("/:id").put(isLoggedIn, validatePollData, async (req, res) => {
+  try {
+    const post = await Posts.findOneAndUpdate({ _id: req.params.id }, req.body);
+    res.send(post);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(501)
+      .send({ error: true, message: "error while adding new post" });
   }
-  Polls.findOneAndRemove({ _id: id }, (err, docs) => {
-    res.status(200).send(`Poll with id:${id} is removed!`);
-  }).catch((err) => {
-    res.status(404).json({ error: true, message: "Poll not found" });
-  });
 });
-*/
+
 module.exports = router;
