@@ -127,7 +127,8 @@ router.route("/signin").post(validateSingginData, async (req, res) => {
 });
 
 router.route("/info").get(async (req, res) => {
-  if (req.cookies.token)
+  if (req.cookies.token) {
+    console.log("cookies", req.cookies);
     jwt.verify(
       req.cookies.token,
       process.env.JWT_SECRET,
@@ -149,7 +150,7 @@ router.route("/info").get(async (req, res) => {
         }
       }
     );
-  else res.send("you are not sigen in.");
+  } else res.send("you are not sigen in.");
 });
 
 router.route("/signout").get((req, res) => {
