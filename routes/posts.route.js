@@ -82,18 +82,6 @@ router.route("/").get(async (req, res) => {
   }
 });
 
-router.route("/edit/:id").get(async (req, res) => {
-  try {
-    const post = await Posts.findOne({ _id: req.params.id });
-    res.send(post);
-  } catch (error) {
-    console.log(error);
-    res
-      .status(501)
-      .send({ error: true, message: "error while adding new post" });
-  }
-});
-
 router.route("/:id").get(async (req, res) => {
   try {
     const post = await Posts.findOneAndUpdate(
@@ -115,18 +103,6 @@ router.route("/:id").get(async (req, res) => {
 router.route("/:id").delete(async (req, res) => {
   try {
     const post = await Posts.findOneAndRemove({ _id: req.params.id });
-    res.send(post);
-  } catch (error) {
-    console.log(error);
-    res
-      .status(501)
-      .send({ error: true, message: "error while adding new post" });
-  }
-});
-
-router.route("/:id").put(isLoggedIn, validatePollData, async (req, res) => {
-  try {
-    const post = await Posts.findOneAndUpdate({ _id: req.params.id }, req.body);
     res.send(post);
   } catch (error) {
     console.log(error);
