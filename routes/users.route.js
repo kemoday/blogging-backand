@@ -127,7 +127,6 @@ router.route("/signin").post(validateSingginData, async (req, res) => {
 });
 
 router.route("/info").get(async (req, res) => {
-  console.log("cookies", req.cookies);
   if (req.cookies.token) {
     jwt.verify(
       req.cookies.token,
